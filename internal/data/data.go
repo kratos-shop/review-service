@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"review-service/internal/conf"
 
@@ -48,6 +49,22 @@ func NewDB(c *conf.Data) (*gorm.DB, error) {
 			fmt.Printf("mysql connect err: %+v", err)
 			return nil, err
 		}
+
+		// 配置连接池
+		sqlDB, err := db.DB()
+		if err != nil {
+			return nil, err
+		}
+
+		// 设置最大空闲连接数
+		sqlDB.SetMaxIdleConns(10)
+		// 设置最大打开连接数
+		sqlDB.SetMaxOpenConns(100)
+		// 设置连接最大空闲时间
+		sqlDB.SetConnMaxIdleTime(time.Hour)
+		// 设置连接最大生命周期
+		sqlDB.SetConnMaxLifetime(24 * time.Hour)
+
 		return db, nil
 	default:
 		return nil, errors.New("unsupported database driver: " + c.Database.Driver)

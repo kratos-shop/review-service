@@ -69,3 +69,13 @@ func (s *ReviewService) ReplyReview(ctx context.Context, req *pb.ReplyReviewRequ
 	s.log.Infof("ReplyReview success: %+v", id)
 	return &pb.ReplyReviewResp{Id: id}, nil
 }
+
+func (s *ReviewService) AppealReview(ctx context.Context, req *pb.AppealReviewRequest) (*pb.AppealReviewReply, error) {
+	s.log.Infof("AppealReview function called: %+v", req)
+	id, err := s.uc.AppealReview(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	s.log.Infof("AppealReview success: %+v", id)
+	return &pb.AppealReviewReply{Id: id}, nil
+}
