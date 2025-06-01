@@ -48,6 +48,7 @@ api:
 .PHONY: validate
 # generate validate proto
 validate:
+	@echo "Generating validate proto files..."
 	protoc --proto_path=./api \
 	       --proto_path=./third_party \
 	       --go_out=paths=source_relative:./api \
