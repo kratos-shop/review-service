@@ -39,3 +39,12 @@ message Data {
   Database database = 1;
   Redis redis = 2;
 }
+
+message Registry {
+  Consul consul = 1;
+}
+
+message Consul {
+  string address = 1;
+  string scheme = 2;
+}
