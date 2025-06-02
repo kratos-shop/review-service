@@ -3,7 +3,7 @@
 
 openapi: 3.0.3
 info:
-    title: Review API
+    title: ""
     version: 0.0.1
 paths:
     /v1/reply_review:
@@ -15,7 +15,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/ReplyReviewRequest'
+                            $ref: '#/components/schemas/api.review.v1.ReplyReviewRequest'
                 required: true
             responses:
                 "200":
@@ -23,13 +23,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ReplyReviewResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.review.v1.ReplyReviewResp'
     /v1/review:
         post:
             tags:
@@ -39,7 +33,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CreateReviewRequest'
+                            $ref: '#/components/schemas/api.review.v1.CreateReviewRequest'
                 required: true
             responses:
                 "200":
@@ -47,22 +41,128 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CreateReviewReply'
-                default:
-                    description: Default error response
+                                $ref: '#/components/schemas/api.review.v1.CreateReviewReply'
+    business/v1/review/appeal:
+        post:
+            tags:
+                - Business
+            operationId: Business_AppealReview
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.business.v1.AppealReviewRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.business.v1.AppealReviewReply'
+    business/v1/review/reply:
+        post:
+            tags:
+                - Business
+            operationId: Business_ReplyReview
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.business.v1.ReplyReviewRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.business.v1.ReplyReviewReply'
+    operation/v1/review/appeal:
+        post:
+            tags:
+                - Operation
+            operationId: Operation_AppealReview
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.operation.v1.AppealReviewRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.operation.v1.AppealReviewReply'
 components:
     schemas:
-        CreateReviewReply:
+        api.business.v1.AppealReviewReply:
+            type: object
+            properties:
+                id:
+                    type: string
+            description: 申诉评价响应
+        api.business.v1.AppealReviewRequest:
+            type: object
+            properties:
+                reviewId:
+                    type: string
+                storeId:
+                    type: string
+                content:
+                    type: string
+                picInfo:
+                    type: string
+                videoInfo:
+                    type: string
+            description: 申诉评价请求
+        api.business.v1.ReplyReviewReply:
+            type: object
+            properties:
+                id:
+                    type: string
+            description: 评价回复响应 - 返回回复的id
+        api.business.v1.ReplyReviewRequest:
+            type: object
+            properties:
+                reviewId:
+                    type: string
+                storeId:
+                    type: string
+                content:
+                    type: string
+                picInfo:
+                    type: string
+                videoInfo:
+                    type: string
+            description: 回复评价请求
+        api.operation.v1.AppealReviewReply:
+            type: object
+            properties:
+                appealId:
+                    type: string
+        api.operation.v1.AppealReviewRequest:
+            type: object
+            properties:
+                appealId:
+                    type: string
+                reviewId:
+                    type: string
+                storeId:
+                    type: string
+                status:
+                    type: string
+                appealReason:
+                    type: string
+        api.review.v1.CreateReviewReply:
             type: object
             properties:
                 id:
                     type: string
             description: 创建评价回复
-        CreateReviewRequest:
+        api.review.v1.CreateReviewRequest:
             type: object
             properties:
                 userId:
@@ -90,15 +190,7 @@ components:
                     type: integer
                     format: int32
             description: 创建评价请求
-        GoogleProtobufAny:
-            type: object
-            properties:
-                '@type':
-                    type: string
-                    description: The type of the serialized message.
-            additionalProperties: true
-            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
-        ReplyReviewRequest:
+        api.review.v1.ReplyReviewRequest:
             type: object
             properties:
                 reviewId:
@@ -112,27 +204,13 @@ components:
                 videoInfo:
                     type: string
             description: 回复评价请求
-        ReplyReviewResp:
+        api.review.v1.ReplyReviewResp:
             type: object
             properties:
                 id:
                     type: string
             description: 评价回复响应
-        Status:
-            type: object
-            properties:
-                code:
-                    type: integer
-                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
-                    format: int32
-                message:
-                    type: string
-                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
-                details:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/GoogleProtobufAny'
-                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
-            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
 tags:
+    - name: Business
+    - name: Operation
     - name: Review

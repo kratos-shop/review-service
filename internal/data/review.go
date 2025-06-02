@@ -126,3 +126,45 @@ func (r *reviewRepo) SaveAppealReviewAndUpdateReview(ctx context.Context, appeal
 	}
 	return appeal, nil
 }
+
+func (r *reviewRepo) GetAppealReviewByAppealID(ctx context.Context, appealID int64) (*model.ReviewAppealInfo, error) {
+	r.log.Infof("GetAppealReviewByAppealID req %+v", appealID)
+	appeal, err := r.data.query.ReviewAppealInfo.
+		WithContext(ctx).
+		Where(r.data.query.ReviewAppealInfo.AppealID.Eq(appealID)).First()
+	return appeal, err
+}
+
+func (r *reviewRepo) UpdateAppealAndUpdateReview(ctx context.Context, appeal *v1.OperationAppealReviewRequest) (int64, error) {
+	r.log.Infof("UpdateAppealAndUpdateReview req %+v", appeal)
+	err := r.data.query.Transaction(func(tx *query.Query) error {
+		// 1. 更新申诉表
+		_, err := tx.ReviewAppealInfo.
+			WithContext(ctx).
+			Where(tx.ReviewAppealInfo.AppealID.Eq(appeal.AppealId)).
+			Updates(map[string]interface{}{
+				"status": appeal.Status,
+				"reason": appeal.AppealReason,
+			})
+		if err != nil {
+			r.log.Errorf("UpdateAppealAndUpdateReview err %+v", err)
+			return err
+		}
+		// 2. 更新评价表
+		_, err = tx.ReviewInfo.
+			WithContext(ctx).
+			Where(tx.ReviewInfo.ReviewID.Eq(appeal.ReviewId)).
+			Update(tx.ReviewInfo.Status, appeal.Status)
+		if err != nil {
+			r.log.Errorf("UpdateAppealAndUpdateReview err %+v", err)
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("UpdateAppealAndUpdateReview err %+v", err)
+		return 0, err
+	}
+	r.log.Infof("UpdateAppealAndUpdateReview success %+v", appeal)
+	return appeal.AppealId, nil
+}

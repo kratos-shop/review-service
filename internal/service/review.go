@@ -44,22 +44,6 @@ func (s *ReviewService) CreateReview(ctx context.Context, req *pb.CreateReviewRe
 	}, nil
 }
 
-func (s *ReviewService) UpdateReview(ctx context.Context, req *pb.UpdateReviewRequest) (*pb.UpdateReviewReply, error) {
-	return &pb.UpdateReviewReply{}, nil
-}
-
-func (s *ReviewService) DeleteReview(ctx context.Context, req *pb.DeleteReviewRequest) (*pb.DeleteReviewReply, error) {
-	return &pb.DeleteReviewReply{}, nil
-}
-
-func (s *ReviewService) GetReview(ctx context.Context, req *pb.GetReviewRequest) (*pb.GetReviewReply, error) {
-	return &pb.GetReviewReply{}, nil
-}
-
-func (s *ReviewService) ListReview(ctx context.Context, req *pb.ListReviewRequest) (*pb.ListReviewReply, error) {
-	return &pb.ListReviewReply{}, nil
-}
-
 func (s *ReviewService) ReplyReview(ctx context.Context, req *pb.ReplyReviewRequest) (*pb.ReplyReviewResp, error) {
 	s.log.Infof("ReplyReview function called: %+v", req)
 	id, err := s.uc.ReplyReview(ctx, req)
@@ -78,4 +62,15 @@ func (s *ReviewService) AppealReview(ctx context.Context, req *pb.AppealReviewRe
 	}
 	s.log.Infof("AppealReview success: %+v", id)
 	return &pb.AppealReviewReply{Id: id}, nil
+}
+
+func (s *ReviewService) OperationAppealReview(ctx context.Context, req *pb.OperationAppealReviewRequest) (*pb.OperationAppealReviewReply, error) {
+	s.log.Infof("OperationAppealReview function called: %+v", req)
+	id, err := s.uc.OperationAppealReview(ctx, req)
+	if err != nil {
+		s.log.Errorf("OperationAppealReview failed: %+v", err)
+		return nil, err
+	}
+	s.log.Infof("OperationAppealReview success: %+v", id)
+	return &pb.OperationAppealReviewReply{Id: id}, nil
 }

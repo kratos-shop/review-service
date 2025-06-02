@@ -24,6 +24,10 @@ type ReviewRepo interface {
 	// b 端
 	UpdateAppealReviewByReviewID(ctx context.Context, reviewID int64, appeal *model.ReviewAppealInfo) (int64, error)
 	SaveAppealReviewAndUpdateReview(context.Context, *model.ReviewAppealInfo) (*model.ReviewAppealInfo, error)
+
+	// 运营申诉评价
+	GetAppealReviewByAppealID(ctx context.Context, appealID int64) (*model.ReviewAppealInfo, error)
+	UpdateAppealAndUpdateReview(ctx context.Context, appeal *v1.OperationAppealReviewRequest) (int64, error)
 }
 
 // ReviewUsecase is a Review usecase.
@@ -146,4 +150,28 @@ func (uc *ReviewUsecase) AppealReview(ctx context.Context, r *pb.AppealReviewReq
 	// 3. 返回
 	uc.log.WithContext(ctx).Infof("AppealReview saved successfully: %+v", appealReview)
 	return appealReview.ReviewID, nil
+}
+
+// 运营申诉评价
+func (uc *ReviewUsecase) OperationAppealReview(ctx context.Context, r *pb.OperationAppealReviewRequest) (id int64, err error) {
+	uc.log.WithContext(ctx).Infof("OperationAppealReview: %+v", r)
+	// 1. 数据校验
+	appeal, err := uc.repo.GetAppealReviewByAppealID(ctx, r.GetAppealId())
+	if err != nil {
+		uc.log.WithContext(ctx).Errorf("OperationAppealReview: %+v", err)
+		return 0, v1.ErrorDbFailed("数据库查询失败: %v", err)
+	}
+	if appeal == nil {
+		uc.log.WithContext(ctx).Errorf("OperationAppealReview: %+v", err)
+		return 0, v1.ErrorAppealReviewNotFound("申诉评价不存在: %d", r.GetAppealId())
+	}
+	// 2. 更新数据库中的数据（评价申诉表更新，评价表更新）
+	appealID, err := uc.repo.UpdateAppealAndUpdateReview(ctx, r)
+	if err != nil {
+		uc.log.WithContext(ctx).Errorf("OperationAppealReview: %+v", err)
+		return 0, v1.ErrorDbFailed("数据库更新失败: %v", err)
+	}
+	// 3. 返回
+	uc.log.WithContext(ctx).Infof("OperationAppealReview: %+v", appealID)
+	return appealID, nil
 }
